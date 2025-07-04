@@ -19,7 +19,7 @@ class Config:
     OPENSKY_API_BASE = 'https://opensky-network.org/api'
     AVIATIONSTACK_API_KEY = os.environ.get('AVIATIONSTACK_API_KEY')
     AVIATIONSTACK_API_BASE = 'http://api.aviationstack.com/v1'
-    AVIATIONSTACK_API_KEY = '54a5ffea2c6db23b236d3bfa8af7e051'
+    
     # OpenAI Configuration (optional)
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
     
@@ -91,3 +91,17 @@ class Config:
     def get_api_timeout():
         """Get API timeout based on environment"""
         return 10 if Config.is_development() else 30
+    
+    @staticmethod
+    def validate_required_config():
+        """Validate that all required configuration is present"""
+        required_vars = {
+            'AVIATIONSTACK_API_KEY': Config.AVIATIONSTACK_API_KEY,
+        }
+        
+        missing_vars = [var for var, value in required_vars.items() if not value]
+        
+        if missing_vars:
+            raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+        
+        return True

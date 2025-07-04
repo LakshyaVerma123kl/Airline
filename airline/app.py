@@ -8,6 +8,10 @@ import json
 import logging
 from flask import Flask, render_template, request, jsonify
 from plotly.utils import PlotlyJSONEncoder
+from dotenv import load_dotenv
+
+# Load environment variables first
+load_dotenv()
 
 from config import Config
 from data_processor import DataProcessor
@@ -21,8 +25,22 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.secret_key = Config.SECRET_KEY
 
+# Validate configuration on startup
+try:
+    Config.validate_required_config()
+    logger.info("✅ All required configuration loaded successfully!")
+except ValueError as e:
+    logger.error(f"❌ Configuration error: {e}")
+    # For production, you might want to exit gracefully
+    # For now, we'll continue but log the error
+
 # Initialize global processor
-processor = DataProcessor()
+try:
+    processor = DataProcessor()
+    logger.info("✅ Data processor initialized successfully!")
+except Exception as e:
+    logger.error(f"❌ Error initializing data processor: {e}")
+    processor = None
 
 @app.route('/')
 def index():
@@ -32,6 +50,15 @@ def index():
     except Exception as e:
         logger.error(f"Error rendering index.html: {e}")
         return jsonify({'status': 'error', 'message': 'Template rendering failed'}), 500
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint for deployment monitoring"""
+    return jsonify({
+        'status': 'healthy',
+        'message': 'Airline Market Demand Analyzer is running',
+        'processor_status': 'initialized' if processor else 'not initialized'
+    })
 
 @app.route('/routes')
 def routes_page():
@@ -54,6 +81,12 @@ def insights_page():
 @app.route('/api/collect-data', methods=['POST'])
 def collect_data():
     """API endpoint to trigger data collection"""
+    if not processor:
+        return jsonify({
+            'status': 'error',
+            'message': 'Data processor not initialized'
+        }), 500
+    
     try:
         result = processor.collect_and_process_data()
         return jsonify({
@@ -71,6 +104,12 @@ def collect_data():
 @app.route('/api/dashboard-data')
 def get_dashboard_data():
     """Get dashboard data"""
+    if not processor:
+        return jsonify({
+            'status': 'error',
+            'message': 'Data processor not initialized'
+        }), 500
+    
     try:
         df = processor.db_manager.get_flight_data()
         insights = processor.ai_generator.generate_insights(df)
@@ -106,6 +145,12 @@ def get_dashboard_data():
 @app.route('/api/route-analysis')
 def route_analysis():
     """Get route analysis data"""
+    if not processor:
+        return jsonify({
+            'status': 'error',
+            'message': 'Data processor not initialized'
+        }), 500
+    
     try:
         df = processor.db_manager.get_flight_data()
         
@@ -157,6 +202,12 @@ def route_analysis():
 @app.route('/api/filter-data')
 def filter_data():
     """Filter data based on user criteria"""
+    if not processor:
+        return jsonify({
+            'status': 'error',
+            'message': 'Data processor not initialized'
+        }), 500
+    
     try:
         # Get filter parameters
         min_price = request.args.get('min_price', type=float)
@@ -201,6 +252,12 @@ def filter_data():
 @app.route('/api/export-data')
 def export_data():
     """Export data to CSV"""
+    if not processor:
+        return jsonify({
+            'status': 'error',
+            'message': 'Data processor not initialized'
+        }), 500
+    
     try:
         df = processor.db_manager.get_flight_data()
         
@@ -239,10 +296,17 @@ def internal_error(error):
         return jsonify({'status': 'error', 'message': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    # Create directories
+    # Create directories (for local development)
     os.makedirs('templates', exist_ok=True)
     os.makedirs('static/css', exist_ok=True)
     os.makedirs('static/js', exist_ok=True)
     
+    # Get port from environment variable or default to 5000
+    port = int(os.environ.get('PORT', 5000))
+    
     # Run the app
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(
+        debug=Config.is_development(),
+        host='0.0.0.0',
+        port=port
+    )
