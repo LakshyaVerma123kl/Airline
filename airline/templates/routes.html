@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Airline Analyzer - Routes</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Table Specific Styles */
+      .table-container {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 2rem;
+        overflow-x: auto;
+        backdrop-filter: blur(20px);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+
+      th,
+      td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+
+      th {
+        background: var(--darker);
+        font-weight: 700;
+        color: var(--text);
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      th:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .status-badge.high {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 107, 107, 0.2),
+          rgba(250, 82, 82, 0.2)
+        );
+        color: #ff6b6b; /* Using direct color for status badges */
+        border: 1px solid #ff6b6b;
+      }
+
+      .status-badge.medium {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 212, 59, 0.2),
+          rgba(251, 176, 5, 0.2)
+        );
+        color: #fee140; /* Using direct color for status badges */
+        border: 1px solid #fee140;
+      }
+
+      .status-badge.low {
+        background: linear-gradient(
+          135deg,
+          rgba(81, 207, 102, 0.2),
+          rgba(64, 192, 87, 0.2)
+        );
+        color: #43e97b; /* Using direct color for status badges */
+        border: 1px solid #43e97b;
+      }
+
+      input,
+      select {
+        transition: all 0.3s ease;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(0, 170, 255, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" title="Toggle Theme">
+      <span class="fas fa-moon"></span>
+    </div>
+
+    <header>
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <h1>Airline Analyzer</h1>
+          </div>
+          <nav>
+            <ul>
+              <li><a href="/">Dashboard</a></li>
+              <li><a href="/routes" class="active">Routes</a></li>
+              <li><a href="/insights">Insights</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="fade-in-up" style="margin-top: 2rem">
+        <h2>Route Analysis</h2>
+        <p
+          style="
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+          "
+        >
+          Comprehensive analysis of flight routes, frequencies, and performance
+          metrics.
+        </p>
+
+        <!-- Controls -->
+        <div class="card" style="margin-bottom: 2rem">
+          <div
+            style="
+              display: flex;
+              gap: 1rem;
+              align-items: center;
+              flex-wrap: wrap;
+            "
+          >
+            <div style="flex: 1; min-width: 250px">
+              <label
+                for="search-routes"
+                style="
+                  display: block;
+                  margin-bottom: 0.5rem;
+                  color: var(--text-muted);
+                "
+              >
+                Search Routes:
+              </label>
+              <input
+                type="text"
+                id="search-routes"
+                placeholder="Enter route or city name..."
+                style="
+                  width: 100%;
+                  padding: 0.75rem;
+                  border: 1px solid var(--border-color);
+                  border-radius: 8px;
+                  background: var(--bg-secondary);
+                  color: var(--text-primary);
+                  font-size: 1rem;
+                "
+              />
+            </div>
+            <div>
+              <label
+                for="sort-by"
+                style="
+                  display: block;
+                  margin-bottom: 0.5rem;
+                  color: var(--text-muted);
+                "
+              >
+                Sort By:
+              </label>
+              <select
+                id="sort-by"
+                style="
+                  padding: 0.75rem;
+                  border: 1px solid var(--border-color);
+                  border-radius: 8px;
+                  background: var(--bg-secondary);
+                  color: var(--text-primary);
+                  font-size: 1rem;
+                "
+              >
+                <option value="route">Route Name</option>
+                <option value="flight_count">Flight Count</option>
+                <option value="popularity">Popularity</option>
+              </select>
+            </div>
+            <div>
+              <label
+                style="
+                  display: block;
+                  margin-bottom: 0.5rem;
+                  color: var(--text-muted);
+                "
+              >
+                Actions:
+              </label>
+              <button id="export-data" class="btn btn-secondary">
+                <i class="fas fa-download"></i> Export Data
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="insights-grid" style="margin-bottom: 3rem">
+          <div class="insight-card slide-in-left">
+            <div class="insight-type">Most Popular Route</div>
+            <div
+              style="
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: var(--primary-color);
+                margin: 0.5rem 0;
+              "
+            >
+              <span id="popular-route">Loading...</span>
+            </div>
+            <div class="insight-description">Highest traffic route</div>
+          </div>
+
+          <div class="insight-card slide-in-left" style="animation-delay: 0.2s">
+            <div class="insight-type">Average Flights</div>
+            <div
+              style="
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: var(--success-color);
+                margin: 0.5rem 0;
+              "
+            >
+              <span id="avg-flights">--</span>
+            </div>
+            <div class="insight-description">Per route daily average</div>
+          </div>
+
+          <div class="insight-card slide-in-left" style="animation-delay: 0.4s">
+            <div class="insight-type">Total Routes</div>
+            <div
+              style="
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: var(--warning-color);
+                margin: 0.5rem 0;
+              "
+            >
+              <span id="total-routes-count">--</span>
+            </div>
+            <div class="insight-description">Active flight paths</div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Loading route analysis...</div>
+        </div>
+
+        <!-- Table Container -->
+        <div
+          id="route-table-container"
+          class="table-container"
+          style="display: none"
+        >
+          <div id="route-table"></div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="error-message" style="display: none">
+          Failed to load routes. Please try again later.
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <p>&copy; 2025 Airline Analyzer. All rights reserved.</p>
+          <ul class="footer-links">
+            <li><a href="/privacy">Privacy</a></li>
+            <li><a href="/terms">Terms</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      let routesData = [];
+      let filteredData = [];
+
+      // Theme toggle functionality
+      document
+        .querySelector(".theme-toggle")
+        .addEventListener("click", function () {
+          document.body.classList.toggle("light-theme");
+          this.querySelector("span").textContent =
+            document.body.classList.contains("light-theme") ? "☀️" : "🌙";
+        });
+
+      // Search functionality
+      document
+        .getElementById("search-routes")
+        .addEventListener("input", function (e) {
+          const searchTerm = e.target.value.toLowerCase();
+          filteredData = routesData.filter((route) =>
+            route.route.toLowerCase().includes(searchTerm)
+          );
+          renderTable();
+        });
+
+      // Sort functionality
+      document
+        .getElementById("sort-by")
+        .addEventListener("change", function (e) {
+          const sortBy = e.target.value;
+          filteredData.sort((a, b) => {
+            if (sortBy === "route") {
+              return a.route.localeCompare(b.route);
+            } else if (sortBy === "flight_count") {
+              return b.flight_count - a.flight_count;
+            }
+            return 0;
+          });
+          renderTable();
+        });
+
+      // Export functionality
+      document
+        .getElementById("export-data")
+        .addEventListener("click", function () {
+          const csvContent =
+            "data:text/csv;charset=utf-8," +
+            "Route,Flight Count\n" +
+            filteredData
+              .map((r) => `"${r.route}",${r.flight_count}`)
+              .join("\n");
+
+          const encodedUri = encodeURI(csvContent);
+          const link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("download", "airline_routes.csv");
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          // Show success message
+          const successMsg = document.createElement("div");
+          successMsg.className = "success-message fade-in-up";
+          successMsg.textContent = "Data exported successfully!";
+          document.querySelector("main").appendChild(successMsg);
+          setTimeout(() => successMsg.remove(), 3000);
+        });
+
+      function renderTable() {
+        const tableContainer = document.getElementById("route-table");
+
+        if (filteredData.length === 0) {
+          tableContainer.innerHTML =
+            '<div class="error-message">No routes found matching your search.</div>';
+          return;
+        }
+
+        const table = document.createElement("table");
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">Route</th>
+                    <th onclick="sortTable(1)">Flight Count</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${filteredData
+                  .map(
+                    (route, index) => `
+                <tr class="fade-in-up" style="animation-delay: ${
+                  index * 0.05
+                }s;">
+                    <td>
+                        <div style="font-weight: 600; color: var(--primary-color)">${
+                          route.route
+                        }</div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem">${
+                          route.distance || "Distance: N/A"
+                        }</div>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600; font-size: 1.1rem">${
+                          route.flight_count
+                        }</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted)">
+                            ${
+                              route.frequency ||
+                              "Daily avg: " +
+                                Math.round(route.flight_count / 30)
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge ${
+                          route.flight_count > 50
+                            ? "high"
+                            : route.flight_count > 20
+                            ? "medium"
+                            : "low"
+                        }">
+                            ${
+                              route.flight_count > 50
+                                ? "📈 High Traffic"
+                                : route.flight_count > 20
+                                ? "📊 Medium Traffic"
+                                : "📉 Low Traffic"
+                            }
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="viewDetails('${
+                          route.route
+                        }')" style="padding: 0.5rem 1rem; font-size: 0.9rem">
+                            View Details
+                        </button>
+                    </td>
+                </tr>
+                `
+                  )
+                  .join("")}
+            </tbody>
+        `;
+
+        tableContainer.innerHTML = "";
+        tableContainer.appendChild(table);
+      }
+
+      function sortTable(col) {
+        const sortBy = col === 0 ? "route" : "flight_count";
+        document.getElementById("sort-by").value = sortBy;
+        document.getElementById("sort-by").dispatchEvent(new Event("change"));
+      }
+
+      function viewDetails(route) {
+        alert(
+          `Detailed analytics for ${route} would open here.\nThis would show:\n- Historical data\n- Performance metrics\n- Seasonal trends\n- Aircraft utilization`
+        );
+      }
+
+      // Load routes data
+      fetch("/api/route-analysis")
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .then((data) => {
+          document.getElementById("loading").style.display = "none";
+
+          if (data.status === "success") {
+            routesData = data.data.routes;
+            filteredData = [...routesData];
+
+            // Update statistics
+            document.getElementById("total-routes-count").textContent =
+              routesData.length;
+            document.getElementById("avg-flights").textContent = Math.round(
+              routesData.reduce((sum, r) => sum + r.flight_count, 0) /
+                routesData.length
+            );
+            document.getElementById("popular-route").textContent =
+              routesData.reduce(
+                (max, r) => (r.flight_count > max.flight_count ? r : max),
+                routesData[0]
+              ).route;
+
+            // Show table and render
+            document.getElementById("route-table-container").style.display =
+              "block";
+            renderTable();
+
+            // Show success message
+            const successMsg = document.createElement("div");
+            successMsg.className = "success-message fade-in-up";
+            successMsg.textContent = `Successfully loaded ${routesData.length} routes!`;
+            document.querySelector("main").appendChild(successMsg);
+            setTimeout(() => successMsg.remove(), 3000);
+          } else {
+            throw new Error(data.message || "Unknown error");
+          }
+        })
+        .catch((error) => {
+          console.error("Route loading error:", error);
+          document.getElementById("loading").style.display = "none";
+          const errorEl = document.getElementById("error");
+          errorEl.style.display = "block";
+          errorEl.textContent = `Error: ${error.message}`;
+        });
+    </script>
+  </body>
+</html>

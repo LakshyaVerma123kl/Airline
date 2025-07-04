@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Airline Analyzer - Advanced Insights</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" title="Toggle Theme">
+      <i class="fas fa-moon"></i>
+    </div>
+
+    <!-- Header -->
+    <header>
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <div class="logo-icon">
+              <i class="fas fa-plane"></i>
+            </div>
+            <h1>Airline Analyzer</h1>
+          </div>
+          <nav>
+            <ul>
+              <li><a href="/">Dashboard</a></li>
+              <li><a href="/routes">Routes</a></li>
+              <li><a href="/insights" class="active">Insights</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <div class="container">
+        <!-- Hero Section -->
+        <section class="hero fade-in-up">
+          <h1>Advanced Insights</h1>
+          <p>
+            Discover deep analytics and predictive insights from your airline
+            data with AI-powered analysis and real-time monitoring.
+          </p>
+        </section>
+
+        <!-- Controls -->
+        <div class="controls">
+          <button class="control-btn active" data-view="overview">
+            Overview
+          </button>
+          <button class="control-btn" data-view="performance">
+            Performance
+          </button>
+          <button class="control-btn" data-view="trends">Trends</button>
+          <button class="control-btn" data-view="predictions">
+            Predictions
+          </button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+          <div class="loading-spinner"></div>
+          <span>Loading advanced insights...</span>
+        </div>
+
+        <!-- Insights Grid -->
+        <div id="insights-grid" class="insights-grid" style="display: none">
+          <!-- Dynamic insights will be loaded here -->
+        </div>
+
+        <!-- Analytics Section -->
+        <section id="analytics" class="analytics-section" style="display: none">
+          <h2 class="section-title">Real-Time Analytics</h2>
+          <div class="chart-container">
+            <div class="chart-header">
+              <h3 class="chart-title">Performance Metrics</h3>
+              <span class="chart-info">Updated every 5 minutes</span>
+            </div>
+            <div class="interactive-chart">
+              <div class="chart-placeholder">
+                <i class="fas fa-chart-line fa-3x pulse"></i>
+                <p>Interactive chart will load here</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Error State -->
+        <div id="error" class="error-message" style="display: none">
+          <i class="fas fa-exclamation-triangle"></i>
+          Failed to load insights. Please try again later.
+        </div>
+
+        <!-- Success State -->
+        <div id="success" class="success-message" style="display: none">
+          <i class="fas fa-check-circle"></i>
+          Insights loaded successfully!
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <p>&copy; 2025 Airline Analyzer. All rights reserved.</p>
+          <ul class="footer-links">
+            <li><a href="/privacy">Privacy</a></li>
+            <li><a href="/terms">Terms</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Theme Toggle
+      const themeToggle = document.querySelector(".theme-toggle");
+      const themeIcon = themeToggle.querySelector("i");
+
+      themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("light-theme");
+        themeIcon.className = document.body.classList.contains("light-theme")
+          ? "fas fa-sun"
+          : "fas fa-moon";
+      });
+
+      // Sample insights data
+      const insightsData = {
+        overview: [
+          {
+            icon: "fas fa-chart-line",
+            title: "Revenue Growth",
+            metric: "+24.5%",
+            description:
+              "Monthly revenue increased significantly driven by improved route optimization and dynamic pricing strategies.",
+            trend: "up",
+            trendValue: "+12% vs last month",
+          },
+          {
+            icon: "fas fa-users",
+            title: "Customer Satisfaction",
+            metric: "94.2%",
+            description:
+              "Customer satisfaction scores remain exceptionally high with improved on-time performance and service quality.",
+            trend: "up",
+            trendValue: "+3.2% vs last month",
+          },
+          {
+            icon: "fas fa-clock",
+            title: "On-Time Performance",
+            metric: "87.3%",
+            description:
+              "Flight punctuality improved through better maintenance scheduling and weather prediction algorithms.",
+            trend: "up",
+            trendValue: "+5.1% vs last month",
+          },
+          {
+            icon: "fas fa-route",
+            title: "Route Efficiency",
+            metric: "92.8%",
+            description:
+              "Optimized flight paths and fuel consumption through AI-powered route planning and real-time adjustments.",
+            trend: "up",
+            trendValue: "+7.3% vs last month",
+          },
+        ],
+        performance: [
+          {
+            icon: "fas fa-tachometer-alt",
+            title: "Load Factor",
+            metric: "83.7%",
+            description:
+              "Aircraft utilization remains strong with strategic capacity management and dynamic demand forecasting.",
+            trend: "up",
+            trendValue: "+4.2% vs last month",
+          },
+          {
+            icon: "fas fa-wrench",
+            title: "Fleet Availability",
+            metric: "96.5%",
+            description:
+              "Excellent maintenance performance with predictive maintenance reducing unscheduled downtime.",
+            trend: "up",
+            trendValue: "+2.1% vs last month",
+          },
+        ],
+        trends: [
+          {
+            icon: "fas fa-trending-up",
+            title: "Booking Trends",
+            metric: "+18.3%",
+            description:
+              "Strong booking momentum with advanced booking patterns showing sustained demand growth.",
+            trend: "up",
+            trendValue: "+8.7% vs last month",
+          },
+          {
+            icon: "fas fa-globe",
+            title: "Market Expansion",
+            metric: "15",
+            description:
+              "New routes launched successfully with strong initial performance and market penetration.",
+            trend: "up",
+            trendValue: "+3 new routes",
+          },
+        ],
+        predictions: [
+          {
+            icon: "fas fa-brain",
+            title: "AI Forecast",
+            metric: "96.2%",
+            description:
+              "Machine learning models predict strong performance with 96.2% accuracy in demand forecasting.",
+            trend: "up",
+            trendValue: "+1.8% accuracy",
+          },
+          {
+            icon: "fas fa-chart-bar",
+            title: "Revenue Projection",
+            metric: "+32%",
+            description:
+              "Projected revenue growth for next quarter based on current trends and market conditions.",
+            trend: "up",
+            trendValue: "Next quarter",
+          },
+        ],
+      };
+
+      // Control buttons
+      const controlBtns = document.querySelectorAll(".control-btn");
+      const insightsGrid = document.getElementById("insights-grid");
+      const loading = document.getElementById("loading");
+      const analytics = document.getElementById("analytics");
+      const error = document.getElementById("error");
+      const success = document.getElementById("success");
+
+      controlBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          controlBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          const view = btn.dataset.view;
+          loadInsights(view);
+        });
+      });
+
+      function loadInsights(view) {
+        // Show loading
+        loading.style.display = "flex";
+        insightsGrid.style.display = "none";
+        analytics.style.display = "none";
+        error.style.display = "none";
+        success.style.display = "none";
+
+        // Simulate API call
+        setTimeout(() => {
+          loading.style.display = "none";
+
+          if (Math.random() > 0.1) {
+            // 90% success rate
+            const data = insightsData[view] || insightsData.overview;
+            renderInsights(data);
+            insightsGrid.style.display = "grid";
+            analytics.style.display = "block"; // Always show analytics section for insights page
+
+            // Show success message
+            success.style.display = "block";
+            setTimeout(() => {
+              success.style.display = "none";
+            }, 3000);
+          } else {
+            error.style.display = "block";
+          }
+        }, 1500);
+      }
+
+      function renderInsights(data) {
+        insightsGrid.innerHTML = data
+          .map(
+            (insight) => `
+            <div class="insight-card fade-in-up">
+                <div class="insight-header">
+                    <div class="insight-icon">
+                        <i class="${insight.icon}"></i>
+                    </div>
+                    <h3 class="insight-title">${insight.title}</h3>
+                </div>
+                <div class="insight-metric">${insight.metric}</div>
+                <p class="insight-description">${insight.description}</p>
+                <div class="insight-trend trend-${insight.trend}">
+                    <i class="fas fa-arrow-${
+                      insight.trend === "up" ? "up" : "down"
+                    }"></i>
+                    <span>${insight.trendValue}</span>
+                </div>
+            </div>
+            `
+          )
+          .join("");
+      }
+
+      // Initial load
+      loadInsights("overview");
+
+      // Add some interactivity
+      document.addEventListener("DOMContentLoaded", () => {
+        // Add smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute("href")).scrollIntoView({
+              behavior: "smooth",
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

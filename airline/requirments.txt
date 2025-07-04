@@ -1,0 +1,9 @@
+# Core dependencies for the Airline Market Demand Analyzer
+flask>=3.0.0,<4.0.0           # Web framework for the Flask application
+pandas>=2.2.0,<3.0.0          # Data processing and analysis
+numpy>=1.26.0,<2.0.0          # Numerical computations
+requests>=2.32.0,<3.0.0       # HTTP requests for API calls
+beautifulsoup4>=4.12.0,<5.0.0 # Web scraping
+plotly>=5.22.0,<6.0.0         # Data visualization
+python-dotenv>=1.0.0,<2.0.0   # Environment variable management
+

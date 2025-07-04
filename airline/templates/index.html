@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Airline Analyzer - Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <meta
+      name="description"
+      content="Professional airline data insights and analytics dashboard."
+    />
+  </head>
+  <body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" title="Toggle Theme">
+      <span class="fas fa-moon"></span>
+    </div>
+
+    <header>
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <h1>Airline Analyzer</h1>
+          </div>
+          <nav>
+            <ul>
+              <li><a href="/" class="active">Dashboard</a></li>
+              <li><a href="/routes">Routes</a></li>
+              <li><a href="/insights">Insights</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="fade-in-up" style="margin-top: 2rem">
+        <h2>Welcome to the Airline Dashboard</h2>
+        <p
+          style="
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+          "
+        >
+          Explore airline performance, route popularity, pricing trends, and
+          more — all in one place.
+        </p>
+
+        <!-- Statistics Cards -->
+        <div class="insights-grid" style="margin-bottom: 3rem">
+          <div class="card slide-in-left">
+            <div class="insight-type">Total Routes</div>
+            <div
+              style="
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: var(--primary-color);
+                margin: 0.5rem 0;
+              "
+            >
+              <span id="total-routes">--</span>
+            </div>
+            <div class="insight-description">Active flight routes tracked</div>
+          </div>
+
+          <div class="card slide-in-left" style="animation-delay: 0.2s">
+            <div class="insight-type">Daily Flights</div>
+            <div
+              style="
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: var(--success-color);
+                margin: 0.5rem 0;
+              "
+            >
+              <span id="daily-flights">--</span>
+            </div>
+            <div class="insight-description">Average flights per day</div>
+          </div>
+
+          <div class="card slide-in-left" style="animation-delay: 0.4s">
+            <div class="insight-type">Performance Score</div>
+            <div
+              style="
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: var(--warning-color);
+                margin: 0.5rem 0;
+              "
+            >
+              <span id="performance-score">--</span>
+            </div>
+            <div class="insight-description">Overall system efficiency</div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Loading dashboard data...</div>
+        </div>
+
+        <!-- Charts Container - Single Column Layout -->
+        <div id="charts" class="charts-single-column"></div>
+
+        <!-- Error State -->
+        <div id="error" class="error-message" style="display: none">
+          Failed to load charts. Please try again later.
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <p>&copy; 2025 Airline Analyzer. All rights reserved.</p>
+          <ul class="footer-links">
+            <li><a href="/privacy">Privacy</a></li>
+            <li><a href="/terms">Terms</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.plot.ly/plotly-3.0.1.min.js"></script>
+    <script>
+      // Theme toggle functionality
+      document
+        .querySelector(".theme-toggle")
+        .addEventListener("click", function () {
+          document.body.classList.toggle("light-theme");
+          this.querySelector("span").textContent =
+            document.body.classList.contains("light-theme") ? "☀️" : "🌙";
+        });
+
+      // Simulate stats loading
+      setTimeout(() => {
+        document.getElementById("total-routes").textContent = "245";
+        document.getElementById("daily-flights").textContent = "1,247";
+        document.getElementById("performance-score").textContent = "94.2";
+      }, 1000);
+
+      // Enhanced chart loading with better error handling
+      fetch("/api/dashboard-data")
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .then((data) => {
+          document.getElementById("loading").style.display = "none";
+
+          if (data.status === "success") {
+            const chartsDiv = document.getElementById("charts");
+
+            for (const [id, chart] of Object.entries(data.data.charts)) {
+              const chartContainer = document.createElement("div");
+              chartContainer.className = "chart-container fade-in-up";
+              chartContainer.style.animationDelay = `${
+                Object.keys(data.data.charts).indexOf(id) * 0.2
+              }s`;
+              chartContainer.style.marginBottom = "2rem";
+              chartContainer.style.width = "100%";
+
+              const chartTitle = document.createElement("h3");
+              chartTitle.textContent =
+                chart.layout.title?.text ||
+                id.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+              chartTitle.style.marginBottom = "1rem";
+              chartContainer.appendChild(chartTitle);
+
+              const plotDiv = document.createElement("div");
+              plotDiv.id = id;
+              plotDiv.style.height = "500px";
+              plotDiv.style.width = "100%";
+              chartContainer.appendChild(plotDiv);
+
+              chartsDiv.appendChild(chartContainer);
+
+              // Enhanced Plotly configuration
+              const config = {
+                responsive: true,
+                displayModeBar: true,
+                displaylogo: false,
+                modeBarButtonsToRemove: ["pan2d", "lasso2d", "select2d"],
+                toImageButtonOptions: {
+                  format: "png",
+                  filename: `airline-${id}`,
+                  height: 500,
+                  width: 700,
+                  scale: 1,
+                },
+              };
+              const safeLayout = chart.layout || {};
+              Plotly.newPlot(
+                id,
+                chart.data || [],
+                {
+                  ...safeLayout,
+                  plot_bgcolor: "rgba(0,0,0,0)",
+                  paper_bgcolor: "rgba(0,0,0,0)",
+                  font: { color: "#ffffff", family: "Inter" },
+                  margin: { t: 40, r: 40, b: 40, l: 40 },
+                },
+                config
+              );
+            }
+
+            // Show success message
+            const successMsg = document.createElement("div");
+            successMsg.className = "success-message fade-in-up";
+            successMsg.textContent = "Dashboard loaded successfully!";
+            chartsDiv.appendChild(successMsg);
+
+            setTimeout(() => (successMsg.style.display = "none"), 3000);
+          } else {
+            throw new Error(data.message || "Unknown error");
+          }
+        })
+        .catch((error) => {
+          console.error("Dashboard loading error:", error);
+          document.getElementById("loading").style.display = "none";
+          const errorEl = document.getElementById("error");
+          errorEl.style.display = "block";
+          errorEl.textContent = `Error: ${error.message}`;
+        });
+
+      // Add smooth scrolling for navigation
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          document.querySelector(this.getAttribute("href")).scrollIntoView({
+            behavior: "smooth",
+          });
+        });
+      });
+    </script>
+
+    <style>
+      /* Additional styles for single column layout */
+      .charts-single-column {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .charts-single-column .chart-container {
+        width: 100%;
+        max-width: none;
+        margin: 0 auto;
+      }
+
+      /* Override grid layout for charts */
+      #charts {
+        display: block !important;
+      }
+
+      /* Make charts more visually appealing in single column */
+      .chart-container {
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+      }
+
+      .chart-container:hover {
+        transform: translateY(-5px);
+      }
+    </style>
+  </body>
+</html>
